@@ -30,4 +30,10 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  @media (max-width: 768px) {
+    * {
+      font-size: 80%;
+    }
+  }
 }
