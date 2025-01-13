@@ -1,24 +1,23 @@
-import React from 'react'
-
 interface ModelPredictionProps {
-  data: Array<number>
+  predictions: {
+    className: string;
+    probability: number;
+  }[] | null;
 }
 
-export const ModelPrediction: React.FC<ModelPredictionProps> = ({ data }) => {
-  // Encontre o valor máximo para normalizar as barras
-  const maxValue = Math.max(...data)
-
+export function ModelPrediction({ predictions }: ModelPredictionProps) {
   return (
-    <div className="flex flex-col gap-2 w-full items-center mt-4">
-      {data.map((value, index) => (
-        <span
-          className={`text-center p-4 font-semibold text-3xl bg-cyan-600 text-white outline-none rounded-md ${
-            value > 0 ? 'flex' : 'hidden'
-          }`}
-        >
-          {index}
-        </span>
-      ))}
-    </div>
-  )
-}
+    <>
+      {predictions && (
+        <div className="flex flex-col w-full gap-4 mt-4">
+          <h3 className="font-light text-xl">Resultados:</h3>
+          {predictions.map((prediction, index) => (
+            <div key={index} className={`text-center p-2 rounded-md ${index === 0 ? "bg-emerald-500" : "bg-blue-500"}`}>
+              {`${prediction.className}: ${(prediction.probability * 100).toFixed(2)}%`}
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+};

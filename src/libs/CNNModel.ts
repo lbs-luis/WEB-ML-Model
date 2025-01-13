@@ -1,26 +1,30 @@
-import * as tf from '@tensorflow/tfjs';
+import * as mobilenet from '@tensorflow-models/mobilenet';
 
 export class CNNModel {
-  private model!: tf.LayersModel;
-  public prediction: any;
+  private model!: mobilenet.MobileNet;
 
-  async loadModel() {
-    this.model = await tf.loadLayersModel('/models/model.json');
+  // Carrega o modelo MobileNet
+  async loadModel(): Promise<void> {
+    try {
+      this.model = await mobilenet.load(); // Carrega o modelo MobileNet
+      console.log('Modelo MobileNet carregado com sucesso.');
+    } catch (error) {
+      console.error('Erro ao carregar o modelo MobileNet:', error);
+      throw new Error('Não foi possível carregar o modelo.');
+    }
   }
 
-  async predict(imageData: ImageData) {
-    await tf.tidy(() => {
+  // Classifica uma imagem do canvas usando MobileNet
+  async classifyImage(canvas: HTMLImageElement): Promise<Array<{ className: string; probability: number }>> {
+    try {
+      // Classifica a imagem do canvas
+      const predictions = await this.model.classify(canvas);
 
-      // Convert the canvas pixels to 
-      let img = tf.browser.fromPixels(imageData, 1);
-      img = img.reshape([1, 28, 28, 1]);
-      img = tf.cast(img, 'float32');
-
-      // Make and format the predications
-      const output = this.model.predict(img) as any;
-
-      // Save predictions on the component
-      this.prediction = Array.from(output.dataSync());
-    });
+      console.log('Predições:', predictions);
+      return predictions; // Retorna as predições (classe e probabilidade)
+    } catch (error) {
+      console.error('Erro ao classificar a imagem:', error);
+      throw new Error('Não foi possível classificar a imagem.');
+    }
   }
 }

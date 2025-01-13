@@ -1,85 +1,89 @@
 'use client'
-import { useState, useEffect, FC, useRef } from 'react'
+import { useState, useEffect, FC } from 'react'
 import { LoaderCircle } from 'lucide-react'
 import { CNNModel } from '@/libs/CNNModel'
-import { DrawableCanvas } from './DrawableCanvas'
+import Image from 'next/image'
 import { ModelPrediction } from './ModelPrediction'
 
 export const CNNModelPredict: FC = () => {
-  const [isModelTraining, setIsModelTraining] = useState<boolean>(true)
-  const [inputValue, setInputValue] = useState<ImageData | null>(null)
-  const [predictedValue, setPredictedValue] = useState<Array<number>>([])
+  const [isModelLoading, setIsModelLoading] = useState<boolean>(true)
+  const [predictions, setPredictions] = useState<Array<{ className: string; probability: number }> | null>(null)
   const [model, setModel] = useState<CNNModel | null>(null)
-  const canvasRef = useRef<{ clearCanvas: () => void }>(null)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
+  // Carregar o modelo encapsulado no CNNModel
   useEffect(() => {
-    const trainModel = async () => {
+    const loadModel = async () => {
       try {
         const cnnModel = new CNNModel()
         await cnnModel.loadModel()
         setModel(cnnModel)
+        setIsModelLoading(false)
       } catch (error) {
         console.error('Erro ao carregar o modelo:', error)
-      } finally {
-        setIsModelTraining(false)
+        setIsModelLoading(false)
       }
     }
-    trainModel()
+    loadModel()
   }, [])
 
-  const handleInputChange = async () => {
-    if (model && inputValue) {
+  // Processar a imagem carregada e classificá-la
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || event.target.files.length === 0) return
+
+    const file = event.target.files[0]
+    const imageUrl = URL.createObjectURL(file)
+    setSelectedImage(imageUrl) // Exibe a imagem carregada
+
+    if (model) {
       try {
-        await model.predict(inputValue)
-        const prediction = model.prediction || []
-        console.log(prediction)
-        setPredictedValue(prediction)
+        // Cria um elemento <img> para processar a imagem
+        const imgElement = document.createElement('img')
+        imgElement.src = imageUrl
+        imgElement.onload = async () => {
+          const predictions = await model.classifyImage(imgElement) // Classifica a imagem carregada
+          setPredictions(predictions) // Salva as predições no estado
+        }
       } catch (error) {
-        console.error('Erro ao fazer a predição:', error)
+        console.error('Erro ao classificar a imagem:', error)
       }
     }
-  }
-
-  const handleClearCanvas = () => {
-    canvasRef.current?.clearCanvas()
   }
 
   return (
     <div className="flex flex-col max-w-[400px] w-full mt-12">
       <h1 className="text-3xl font-semibold mb-4">
-        Convolutional Neural Network (CNN)
+        Classificação com MobileNet
       </h1>
-      {isModelTraining ? (
+      {isModelLoading ? (
         <div className="flex items-center gap-2 text-base text-gray-400">
-          <span className="font-light text-2xl">Treinando modelo</span>
+          <span className="font-light text-2xl">Carregando modelo...</span>
           <LoaderCircle className="h-5 w-5 animate-spin" />
         </div>
       ) : (
         <>
-          <div className="flex flex-col gap-2 mb-4">
-            <p className="font-light text-2xl">Digite um número</p>
-            <DrawableCanvas onNewImage={setInputValue} ref={canvasRef} />
-            <div className="flex flex-row w-full justify-between gap-4">
-              <button
-                onClick={handleInputChange}
-                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded max-w-[180px] w-full"
-              >
-                Enviar
-              </button>
-              <button
-                onClick={handleClearCanvas}
-                className="mt-2 px-4 py-2 bg-red-500 text-white rounded max-w-[180px] w-full"
-              >
-                Limpar
-              </button>
-            </div>
+          <div className="flex flex-col gap-2 mb-4 items-center">
+            <p className="font-light text-2xl w-full text-left">Carregue uma imagem</p>
+            {/* Input para carregar a imagem */}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="mb-4"
+            />
+            {/* Exibir a imagem carregada */}
+            {selectedImage && (
+              <Image
+                src={selectedImage}
+                alt="Imagem carregada"
+                className="rounded-md"
+                width={400}
+                height={400}
+              />
+            )}
           </div>
-          {predictedValue.length > 0 && (
-            <div className="flex flex-col gap-2 mt-4">
-              <p className="font-light text-2xl">A máquina acha que é:</p>
-              <ModelPrediction data={predictedValue} />
-            </div>
-          )}
+          {/* Exibição das predições */}
+          <ModelPrediction predictions={predictions} />
         </>
       )}
     </div>

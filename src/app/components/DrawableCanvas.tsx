@@ -8,11 +8,11 @@ import {
 } from 'react'
 
 interface DrawableCanvasProps {
-  onNewImage: (imageData: ImageData) => void
+
 }
 
 export const DrawableCanvas = forwardRef(
-  ({ onNewImage }: DrawableCanvasProps, ref) => {
+  ({ }: DrawableCanvasProps, ref) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const [pos, setPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
     const [isDrawing, setIsDrawing] = useState<boolean>(false)
@@ -87,8 +87,6 @@ export const DrawableCanvas = forwardRef(
 
     const handleMouseUp = () => {
       setIsDrawing(false)
-      const imgData = getImgData()
-      onNewImage(imgData)
     }
 
     const handleMouseDown = (e: MouseEvent<HTMLCanvasElement>) => {
@@ -107,6 +105,7 @@ export const DrawableCanvas = forwardRef(
     }
 
     useImperativeHandle(ref, () => ({
+      getCanvas: () => canvasRef.current!,
       clearCanvas,
     }))
 
@@ -125,3 +124,5 @@ export const DrawableCanvas = forwardRef(
     )
   }
 )
+
+DrawableCanvas.displayName = "DrawableCanvas"
