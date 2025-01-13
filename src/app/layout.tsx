@@ -5,8 +5,8 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Digit Recognizer',
-  description: 'An ML model trained to recognize digits',
+  title: 'CNN Model',
+  description: 'An ML model trained to recognize objects based on mobile-net',
 }
 
 export default function RootLayout({

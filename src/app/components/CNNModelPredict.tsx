@@ -1,9 +1,10 @@
 'use client'
 import { useState, useEffect, FC } from 'react'
-import { LoaderCircle } from 'lucide-react'
+import { Link as LinkIcon, LoaderCircle } from 'lucide-react'
 import { CNNModel } from '@/libs/CNNModel'
 import Image from 'next/image'
 import { ModelPrediction } from './ModelPrediction'
+import Link from 'next/link'
 
 export const CNNModelPredict: FC = () => {
   const [isModelLoading, setIsModelLoading] = useState<boolean>(true)
@@ -52,40 +53,46 @@ export const CNNModelPredict: FC = () => {
 
   return (
     <div className="flex flex-col max-w-[400px] w-full mt-12">
-      <h1 className="text-3xl font-semibold mb-4">
-        Classificação com MobileNet
-      </h1>
-      {isModelLoading ? (
-        <div className="flex items-center gap-2 text-base text-gray-400">
-          <span className="font-light text-2xl">Carregando modelo...</span>
-          <LoaderCircle className="h-5 w-5 animate-spin" />
-        </div>
-      ) : (
-        <>
-          <div className="flex flex-col gap-2 mb-4 items-center">
-            <p className="font-light text-2xl w-full text-left">Carregue uma imagem</p>
-            {/* Input para carregar a imagem */}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="mb-4"
-            />
-            {/* Exibir a imagem carregada */}
-            {selectedImage && (
-              <Image
-                src={selectedImage}
-                alt="Imagem carregada"
-                className="rounded-md"
-                width={400}
-                height={400}
-              />
-            )}
+      <Link href={"https://www.tensorflow.org/js/models?hl=pt-br"} className='flex gap-2 items-center group' target='_blank'>
+        <h1 className="text-2xl font-semibold">
+          Modelo CNN (MobileNet)
+        </h1>
+        <LinkIcon className='size-4 cursor-pointer group-hover:text-blue-400' />
+      </Link>
+      <p className='text-sm text-white/70 my-2'>As redes neurais convolucionais (Convolutional neural network ou CNNs) são um subconjunto do aprendizado de máquina utilizadas com mais frequência para tarefas de classificação de imagens e visão computacional, como reconhecimento de objetos.</p>
+      {
+        isModelLoading ? (
+          <div className="flex items-center gap-4 text-base text-gray-400">
+            <span className="font-light text-2xl">Carregando modelo...</span>
+            <LoaderCircle className="h-5 w-5 animate-spin" />
           </div>
-          {/* Exibição das predições */}
-          <ModelPrediction predictions={predictions} />
-        </>
-      )}
-    </div>
+        ) : (
+          <>
+            <div className="flex flex-col gap-2 mb-4 items-center">
+              <p className="font-light text-2xl w-full text-left">Carregue uma imagem</p>
+              {/* Input para carregar a imagem */}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="mb-4"
+              />
+              {/* Exibir a imagem carregada */}
+              {selectedImage && (
+                <Image
+                  src={selectedImage}
+                  alt="Imagem carregada"
+                  className="rounded-md"
+                  width={400}
+                  height={400}
+                />
+              )}
+            </div>
+            {/* Exibição das predições */}
+            <ModelPrediction predictions={predictions} />
+          </>
+        )
+      }
+    </div >
   )
 }

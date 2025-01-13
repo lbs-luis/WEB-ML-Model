@@ -22,8 +22,8 @@ export const DrawableCanvas = forwardRef(
       if (canvas) {
         const ctx = canvas.getContext('2d')
         if (ctx) {
-          canvas.width = 300
-          canvas.height = 300
+          canvas.width = 400
+          canvas.height = 400
         }
       }
     }, [])
@@ -51,7 +51,7 @@ export const DrawableCanvas = forwardRef(
       const ctx = canvasRef.current.getContext('2d')
       if (ctx) {
         ctx.beginPath()
-        ctx.lineWidth = 10
+        ctx.lineWidth = 6
         ctx.lineCap = 'round'
         ctx.strokeStyle = '#ffffff'
         ctx.moveTo(pos.x, pos.y)
@@ -59,30 +59,6 @@ export const DrawableCanvas = forwardRef(
         ctx.lineTo(pos.x, pos.y)
         ctx.stroke()
       }
-    }
-
-    const getImgData = (): ImageData => {
-      const canvas = canvasRef.current
-      if (!canvas) {
-        throw new Error('Canvas is not available.')
-      }
-
-      const ctx = canvas.getContext('2d')
-      if (!ctx) {
-        throw new Error('Canvas context is not available.')
-      }
-
-      const scaledCanvas = document.createElement('canvas')
-      const scaledCtx = scaledCanvas.getContext('2d')
-      if (!scaledCtx) {
-        throw new Error('Scaled canvas context is not available.')
-      }
-
-      scaledCanvas.width = 28
-      scaledCanvas.height = 28
-      scaledCtx.drawImage(canvas, 0, 0, 28, 28)
-
-      return scaledCtx.getImageData(0, 0, 28, 28)
     }
 
     const handleMouseUp = () => {
@@ -118,7 +94,7 @@ export const DrawableCanvas = forwardRef(
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseEnter={setPosition}
-          style={{ width: '300px', height: '300px' }}
+          style={{ width: '400px', height: '400px' }}
         ></canvas>
       </div>
     )
